@@ -1,0 +1,12 @@
+{
+    "manifest_version": 3,
+    "name": "Google Cite Extractor",
+    "version": "1.0",
+    "description": "Extracts all cited links from Google Search results.",
+    "permissions": ["scripting", "activeTab"],
+    "host_permissions": ["https://www.google.com/search*"],
+    "action": {
+      "default_popup": "popup.html"
+    }
+  }
+  
