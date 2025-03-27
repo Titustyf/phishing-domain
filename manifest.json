@@ -1,12 +1,17 @@
 {
-    "manifest_version": 3,
-    "name": "Google Cite Extractor",
-    "version": "1.0",
-    "description": "Extracts all cited links from Google Search results.",
-    "permissions": ["scripting", "activeTab"],
-    "host_permissions": ["https://www.google.com/search*"],
-    "action": {
-      "default_popup": "popup.html"
+  "manifest_version": 3,
+  "name": "URL Extractor",
+  "version": "1.0",
+  "description": "Extracts all URLs from the current page",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
     }
-  }
-  
+  ]
+}

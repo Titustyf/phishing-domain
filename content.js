@@ -1,33 +1,29 @@
-function extractCiteLinks() {
-    let cites = document.querySelectorAll("cite");
-    let links = Array.from(cites)
-        .map(cite => {
-            let text = cite.innerText.trim(); // Get all text inside <cite>
-            let match = text.match(/https?:\/\/[^\s>]+/); // Extract only the URL
-            return match ? match[0] : null; // Return the URL or null if no match
-        })
-        .filter(link => link !== null); // Remove null values
-    return [...new Set(links)]; // Remove duplicates
+// rreplace here with AI model 
+// Function to assign random risk levels for now
+function getRiskLevel() {
+    let risks = ["low", "medium", "high"];
+    return risks[Math.floor(Math.random() * risks.length)];
 }
 
-// Listen for messages from popup.js
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === "getLinks") {
-        let links = extractCiteLinks();
-        sendResponse({ links: links });
+// Get all links on the page
+let links = document.querySelectorAll("a");
+
+links.forEach(link => {
+    let riskLevel = getRiskLevel();  // Simulate AI model risk assessment
+
+    // Set tooltip text
+    let tooltipText = "";
+    if (riskLevel === "low") {
+        link.style.color = "green";
+        tooltipText = "This link is LOW risk.";
+    } else if (riskLevel === "medium") {
+        link.style.color = "orange";
+        tooltipText = "This link is MEDIUM risk. Be cautious.";
+    } else if (riskLevel === "high") {
+        link.style.color = "red";
+        tooltipText = "WARNING: This link is HIGH risk (possible phishing).";
     }
+
+    // Set title attribute (tooltip)
+    link.setAttribute("title", tooltipText);
 });
-
-// Check website security (HTTPS and SSL)
-async function checkSecurity(url) {
-    let isSecure = url.startsWith("https");
-    
-    try {
-        let response = await fetch(url, { method: "HEAD" });
-        return { url, secure: isSecure, status: response.status === 200 };
-    } catch (error) {
-        return { url, secure: isSecure, status: false };
-    }
-}
-
-
