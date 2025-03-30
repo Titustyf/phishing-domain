@@ -7,7 +7,6 @@
 // script.onload = async () => {
 loadModel();
 async function loadModel() {
-    console.log("testing");
     // Load the TensorFlow.js model
     const model = await tf.loadLayersModel(chrome.runtime.getURL('model/model.json'));
     console.log("Model Loaded:", model);
