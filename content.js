@@ -16,38 +16,46 @@ async function loadModel() {
 
     links.forEach(link => {
         let url = link.href;
+        console.log('URL value:', link);
+        console.log("Extracted URL:", url);
         
-        let features = extractUrlFeatures(url);
+        if (url && url.trim() !== "") {
+            try {
+                let features = extractUrlFeatures(url);
 
-        // Run the model prediction
-        model.predict(features).then(prediction => {
+                // Run the model prediction
+                let predictionTensor = model.predict(features);
+                let prediction = predictionTensor.dataSync();
 
-            let riskLevel = 'low'; // Default to low risk
-            if (prediction[0] > 0.7) {
-                riskLevel = 'high'; // High risk
-            } else if (prediction[0] > 0.4) {
-                riskLevel = 'medium'; // Medium risk
+                let riskLevel = 'low'; // Default to low risk
+                if (prediction[0] > 0.7) {
+                    riskLevel = 'high'; // High risk
+                } else if (prediction[0] > 0.4) {
+                    riskLevel = 'medium'; // Medium risk
+                }
+
+                // Set tooltip text
+                let tooltipText = "";
+                if (riskLevel === "low") {
+                    link.style.color = "green";
+                    tooltipText = "This link is LOW risk.";
+                } else if (riskLevel === "medium") {
+                    link.style.color = "orange";
+                    tooltipText = "This link is MEDIUM risk. Be cautious.";
+                } else if (riskLevel === "high") {
+                    link.style.color = "red";
+                    tooltipText = "WARNING: This link is HIGH risk (possible phishing).";
+                }
+
+                // Set title attribute (tooltip)
+                link.setAttribute("title", tooltipText);
+
+            } catch (error) {
+                console.error("Invalid URL:", url, error);
             }
+        }
 
-            // Set tooltip text
-            let tooltipText = "";
-            if (riskLevel === "low") {
-                link.style.color = "green";
-                tooltipText = "This link is LOW risk.";
-            } else if (riskLevel === "medium") {
-                link.style.color = "orange";
-                tooltipText = "This link is MEDIUM risk. Be cautious.";
-            } else if (riskLevel === "high") {
-                link.style.color = "red";
-                tooltipText = "WARNING: This link is HIGH risk (possible phishing).";
-            }
-
-            // Set title attribute (tooltip)
-            link.setAttribute("title", tooltipText);
-
-        }).catch(err => {
-            console.error("Error in prediction:", err);
-        });
+        
     });
 };
 
