@@ -11,10 +11,14 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["tf.min.js","content.js"]
     }
   ],
-  "host_permissions": [
-    "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"
-  ]
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "web_accessible_resources": [{
+    "resources":["model/model.json","model/group1-shard1of1.bin"],
+    "matches" : ["http://*/*", "https://*/*"]
+}]
 }

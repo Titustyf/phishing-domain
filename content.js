@@ -1,11 +1,15 @@
-// Load TensorFlow.js
-const script = document.createElement('script');
-script.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js';
-document.head.appendChild(script);
+// console.log(tf);
+// // Load TensorFlow.js
+// const script = document.createElement('script');
+// script.src = chrome.runtime.getURL('tf.min.js');
+//     // document.head.appendChild(script);
 
-script.onload = async () => {
+// script.onload = async () => {
+loadModel();
+async function loadModel() {
+    console.log("testing");
     // Load the TensorFlow.js model
-    const model = await tf.loadGraphModel('https://github.com/Titustyf/phishing-domain/model.json');
+    const model = await tf.loadLayersModel(chrome.runtime.getURL('model/model.json'));
     console.log("Model Loaded:", model);
 
     // Get all links on the page
