@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "URL Extractor",
+  "name": "Phishing Link Detector",
   "version": "1.0",
-  "description": "Extracts all URLs from the current page",
+  "description": "Extracts all URLs from the current page and checks for phishing risk",
   "permissions": ["activeTab", "scripting"],
   "host_permissions": ["<all_urls>"],
   "background": {
@@ -13,5 +13,8 @@
       "matches": ["<all_urls>"],
       "js": ["content.js"]
     }
+  ],
+  "host_permissions": [
+    "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"
   ]
 }
