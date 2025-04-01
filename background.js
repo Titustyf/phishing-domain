@@ -12,29 +12,29 @@ async function run(websiteData) {
             parts:[{
                 text:"You are an advanced AI-powered web security analysis engine. Your primary task is to evaluate the security posture of a website based on information provided to you in JSON format.  Your analysis should be thorough, accurate, and actionable, providing a security risk score and a detailed breakdown of potential vulnerabilities.",
             }]
+        },
+        generationConfig: {
+            responseMimeType: 'application/json',
+            responseSchema:{
+                type: "array",
+                items: {
+                    type: "object",
+                    properties:{
+                        'Security Risk Score':{
+                            type: "string",
+                            description: 'Security risk score of the website from 1 to 10',
+                            nullable: false,
+                        },
+                        'Potential Vulnerabilities':{
+                            type: "string",
+                            description: 'List the potential vulnerabilities of the website without description and separated by comma',
+                            nullable: true,
+                        },
+                    },
+                    required: ['Security Risk Score','Potential Vulnerabilities'],
+                },
+            }
         }
-        // config: {
-        //     responseMimeType: 'application/json',
-        //     responseSchema:{
-        //         type: "array",
-        //         items: {
-        //             type: "object",
-        //             properties:{
-        //                 'Security Risk Score':{
-        //                     type: "string",
-        //                     description: 'Security risk score of the website',
-        //                     nullable: false,
-        //                 },
-        //                 'Potential Vulnerabilities':{
-        //                     type: "string",
-        //                     description: 'Potential vulnerabilities of the website',
-        //                     nullable: true,
-        //                 },
-        //             },
-        //             required: ['Security Risk Score','Potential Vulnerabilities'],
-        //         },
-        //     }
-        // }
     }
 
     return fetch(GEMINI_API_URL, {
@@ -46,8 +46,9 @@ async function run(websiteData) {
     })
         .then(response => response.json())
         .then(data => {
-            console.log("Gemini response:", data.candidates[0].content.parts[0].text);
-            // return data.candidates[0].content.parts[0].text;
+            // console.log("Gemini response:", data.candidates[0].content.parts[0]);
+            // console.log("Gemini response:", data);
+            return data.candidates[0].content.parts[0].text;
         })
         .catch((error) => {
             console.error('Error:',error);
@@ -101,6 +102,13 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         let websiteData = await extractWebsiteData(tabId, tab.url);
         // Send the data to Gemini API for analysis
         console.log("calling gemini api");
-        await run(websiteData);
+        const response = await run(websiteData);
+        const responseData = JSON.parse(response);
+        const firstResult = responseData[0];
+        const securityRiskScore = firstResult["Security Risk Score"];
+        const potentialVulnerabilities = firstResult["Potential Vulnerabilities"];
+
+        console.log("Security Risk Score:", securityRiskScore);
+        console.log("Potential Vulnerabilities:", potentialVulnerabilities);
     }
 });
