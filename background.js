@@ -1,11 +1,67 @@
-const GEMINI_API_KEY ='ABC123';
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+chrome.runtime.onInstalled.addListener(() => {
+    console.log("Extension Installed");
+});
 
-async function run(websiteData) {
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+    if (changeInfo.status === "complete" && tab.url) {
+        let currentUrl = new URL(tab.url).origin;
+
+        let webData = await getWebData(tabId, currentUrl);
+        console.log("Congrats:", webData);
+
+        const response = JSON.parse(await callGemini(webData))[0];
+        console.log("The response:", response);
+
+        const securityRiskScore = response["Security Risk Score"];
+        const potentialVulnerabilities = response["Potential Vulnerabilities"];
+        showNotification(securityRiskScore, potentialVulnerabilities);
+        console.log("Done");
+    }
+});
+
+//Function to show notification from Gemini's responses
+function showNotification(securityRiskScore, potentialVulnerabilities) {
+    const message = `Risk Score: ${securityRiskScore}\nVulnerabilities: ${potentialVulnerabilities}`;
+    
+    chrome.notifications.create({
+        type: "basic",
+        iconUrl: "icon.png",
+        title: "Website Security Check",
+        message: message,
+        priority: 2
+    });
+}
+
+//Function to Call Gemini API
+async function callGemini(webData){
+    const GEMINI_API_KEY ='ABC123';
+    const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const input = structuredinput(webData);
+    return fetch (GEMINI_API_URL, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body:JSON.stringify(input)
+    })
+        .then(response => response.json())
+        .then(data => {
+            // console.log("Gemini response:", data.candidates[0].content.parts[0]);
+            console.log("Gemini response:", data);
+            return data.candidates[0].content.parts[0].text;
+        })
+        .catch((error) => {
+            console.error('Error:',error);
+            return {error:error.toString()};
+        });
+}
+
+//Function to structured input for calling gemini
+function structuredinput(webData){
     const jsondata = {
         contents: [{
             parts:[{
-                text: JSON.stringify(websiteData),
+                text: JSON.stringify(webData),
             }]
         }],
         systemInstruction: {
@@ -36,92 +92,59 @@ async function run(websiteData) {
             }
         }
     }
-
-    return fetch(GEMINI_API_URL, {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body:JSON.stringify(jsondata)
-    })
-        .then(response => response.json())
-        .then(data => {
-            // console.log("Gemini response:", data.candidates[0].content.parts[0]);
-            // console.log("Gemini response:", data);
-            return data.candidates[0].content.parts[0].text;
-        })
-        .catch((error) => {
-            console.error('Error:',error);
-            return {error:error.toString()};
-        });
+    return jsondata;
 }
 
-function getData () {
-    const webdata = {
-        title: document.title,
-        metaDescription: document.querySelector("meta[name='description']")?.content || "N/A",
-        contentSnippet: document.body.innerText.slice(0, 500),
-        scripts: [...document.querySelectorAll("script")].map(s => s.src).filter(src => src)
+//Function to combine extracted data
+async function getWebData(tabId, url){
+    //Fetch website data and cookies
+    let websiteData = await extractScript(tabId);
+    let cookies = await getCookies(url);
+
+    //Combine the data
+    let combinedData ={
+        url: url,
+        websiteData: websiteData,
+        cookies: cookies
     };
-    return webdata;
+
+    console.log('Combined Data:', combinedData);
+    return combinedData;
 }
 
-// Function to extract website data
-async function extractWebsiteData(tabId, url) {    
+// Function to inject script and extract website data
+function extractScript(tabId) {
     return new Promise((resolve) => {
         chrome.scripting.executeScript({
             target: { tabId: tabId },
-            func: getData,
-        }, 
-        async (results) => {
-            console.log("Extracted Page Data:", results);
-            // Get cookies
-            chrome.cookies.getAll({ url: url }, (cookies) => {
-                // pageData.cookies = cookies.map(cookie => ({
-                //     name: cookie.name,
-                //     value: cookie.value,
-                //     secure: cookie.secure,
-                //     httpOnly: cookie.httpOnly,
-                //     sameSite: cookie.sameSite
-                // }));
-
-                resolve({
-                    url: url,
-                    ...results[0]
-                });
-            });
+            func: extractWebsiteData
+        }, (results) => {
+            console.log("Extracted Data:", results[0]?.result);
+            resolve(results[0]?.result || {});
         });
     });
 }
 
-function showNotification(securityRiskScore, potentialVulnerabilities) {
-    const message = `Risk Score: ${securityRiskScore}\nVulnerabilities: ${potentialVulnerabilities}`;
-    
-    chrome.notifications.create({
-        type: "basic",
-        iconUrl: "icon.png",
-        title: "Website Security Check",
-        message: message,
-        priority: 2
-    });
+// Function that runs inside the webpage to extract website data
+function extractWebsiteData() {
+    return {
+        title: document.title,
+        metaDescription: document.querySelector("meta[name='description']")?.content || "N/A",
+        scripts: [...document.querySelectorAll("script")].map(s => s.src).filter(src => src)
+    };
 }
 
-
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    if (changeInfo.status === "complete" && tab.url) {
-        console.log("Scanning website:", tab.url,"Tab id",tabId);
-     
-        // Extract data from the website
-        let websiteData = await extractWebsiteData(tabId, tab.url);
-        // Send the data to Gemini API for analysis
-        console.log("calling gemini api");
-        const response = await run(websiteData);
-        const responseData = JSON.parse(response);
-        const firstResult = responseData[0];
-        const securityRiskScore = firstResult["Security Risk Score"];
-        const potentialVulnerabilities = firstResult["Potential Vulnerabilities"];
-
-        showNotification(securityRiskScore,potentialVulnerabilities);
-        console.log("finish");
-    }
-});
+// Function to get cookies
+function getCookies(url) {
+    return new Promise((resolve) =>{
+        chrome.cookies.getAll({ url: url }, (cookies) => {
+            if (chrome.runtime.lastError) {
+                console.error("Error getting cookies:", chrome.runtime.lastError);
+                resolve([]);
+            } else {
+                console.log(`Cookies for ${url}:`, cookies);
+                resolve(cookies);
+            }
+        });
+    });
+}
