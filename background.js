@@ -94,6 +94,19 @@ async function extractWebsiteData(tabId, url) {
     });
 }
 
+function showNotification(securityRiskScore, potentialVulnerabilities) {
+    const message = `Risk Score: ${securityRiskScore}\nVulnerabilities: ${potentialVulnerabilities}`;
+    
+    chrome.notifications.create({
+        type: "basic",
+        iconUrl: "icon.png",
+        title: "Website Security Check",
+        message: message,
+        priority: 2
+    });
+}
+
+
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (changeInfo.status === "complete" && tab.url) {
         console.log("Scanning website:", tab.url,"Tab id",tabId);
@@ -108,7 +121,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         const securityRiskScore = firstResult["Security Risk Score"];
         const potentialVulnerabilities = firstResult["Potential Vulnerabilities"];
 
-        console.log("Security Risk Score:", securityRiskScore);
-        console.log("Potential Vulnerabilities:", potentialVulnerabilities);
+        showNotification(securityRiskScore,potentialVulnerabilities);
+        console.log("finish");
     }
 });

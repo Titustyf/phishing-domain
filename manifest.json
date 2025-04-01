@@ -20,5 +20,8 @@
   "web_accessible_resources": [{
     "resources":["model/model.json","model/group1-shard1of1.bin"],
     "matches" : ["http://*/*", "https://*/*"]
-}]
+}],
+  "icons":{
+    "16": "icon.png"
+  }
 }
