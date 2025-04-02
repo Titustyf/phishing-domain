@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "URL Extractor",
+  "name": "Phishing Link Detector",
   "version": "1.0",
-  "description": "Extracts all URLs from the current page",
+  "description": "Extracts all URLs from the current page and checks for phishing risk",
   "permissions": ["activeTab", "scripting"],
   "host_permissions": ["<all_urls>"],
   "background": {
@@ -11,7 +11,14 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["tf.min.js","content.js"]
     }
-  ]
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "web_accessible_resources": [{
+    "resources":["model/model.json","model/group1-shard1of1.bin"],
+    "matches" : ["http://*/*", "https://*/*"]
+}]
 }
