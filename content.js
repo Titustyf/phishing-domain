@@ -1,10 +1,3 @@
-// console.log(tf);
-// // Load TensorFlow.js
-// const script = document.createElement('script');
-// script.src = chrome.runtime.getURL('tf.min.js');
-//     // document.head.appendChild(script);
-
-// script.onload = async () => {
 loadModel();
 async function loadModel() {
     // Load the TensorFlow.js model
@@ -16,8 +9,6 @@ async function loadModel() {
 
     links.forEach(link => {
         let url = link.href;
-        console.log('URL value:', link);
-        console.log("Extracted URL:", url);
         
         if (url && url.trim() !== "") {
             try {

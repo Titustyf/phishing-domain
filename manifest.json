@@ -3,7 +3,7 @@
   "name": "Phishing Link Detector",
   "version": "1.0",
   "description": "Extracts all URLs from the current page and checks for phishing risk",
-  "permissions": ["activeTab", "scripting"],
+  "permissions": ["cookies","tabs","activeTab", "scripting","notifications"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js"
@@ -20,5 +20,9 @@
   "web_accessible_resources": [{
     "resources":["model/model.json","model/group1-shard1of1.bin"],
     "matches" : ["http://*/*", "https://*/*"]
-}]
+}],
+  "icons":{
+    "16": "icon.png"
+  },
+  "action": {}
 }
