@@ -1,3 +1,4 @@
+
 loadModel();
 async function loadModel() {
     // Load the TensorFlow.js model
@@ -35,7 +36,8 @@ async function loadModel() {
                     tooltipText = "This link is MEDIUM risk. Be cautious.";
                 } else if (riskLevel === "high") {
                     link.style.color = "red";
-                    tooltipText = "WARNING: This link is HIGH risk (possible phishing).";
+                    tooltipText = "WARNING: This link is HIGH risk (possible phishing)."
+                      
                 }
 
                 // Set title attribute (tooltip)
