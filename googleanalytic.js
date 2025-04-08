@@ -1,6 +1,6 @@
 const GA_ENDPOINT = 'https://www.google-analytics.com/mp/collect';
-const MEASUREMENT_ID = 'G-G7KGDP2W65';
-const API_SECRET = 'ite_6K2IST-Zb6urAVfFsw';
+const MEASUREMENT_ID = 'ABC123';
+const API_SECRET = 'ABC123';
 
 class googleanalytic {
   constructor() {}

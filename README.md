@@ -89,7 +89,9 @@ The architecture includes a **browser extension** acting as the frontend, which 
 
 ## 6. Prototype Usage
 ### 6.1. Installation Instructions
-1. Download the extension from the Chrome Web Store (or manually load via developer mode).
+1. Git clone the extension.
+2. Replace the GEMINI_API_KEY in background.js,MEASUREMENT_ID and API_SECRET in googleanalytic.js.
+3. Navigate to chrome://extensions/, enable developer mode, and then click "Load unpacked" to select the extension's folder. 
 2. Ensure the extension is enabled in your browser settings.
 
 ### 6.2. Usage Instructions
