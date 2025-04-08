@@ -34,7 +34,7 @@ function showNotification(securityRiskScore, potentialVulnerabilities) {
 
 //Function to Call Gemini API
 async function callGemini(webData){
-    const GEMINI_API_KEY ='ABC123';
+    const GEMINI_API_KEY ='AIzaSyAYWPn7wM3LBdnCVjthQffbSJ2IX9SXx2Q';
     const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
     const input = structuredinput(webData);
     return fetch (GEMINI_API_URL, {
