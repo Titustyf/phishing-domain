@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Phishing Link Detector",
+  "name": "PhishScan",
   "version": "1.0",
   "description": "Extracts all URLs from the current page and checks for phishing risk",
   "permissions": ["cookies","tabs","activeTab", "scripting","notifications","storage"],
