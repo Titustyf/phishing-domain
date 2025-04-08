@@ -1,3 +1,5 @@
+import googleanalytic from "./googleanalytic.js";
+
 chrome.runtime.onInstalled.addListener(() => {
     console.log("Extension Installed");
 });
@@ -15,6 +17,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         const securityRiskScore = response["Security Risk Score"];
         const potentialVulnerabilities = response["Potential Vulnerabilities"];
         showNotification(securityRiskScore, potentialVulnerabilities);
+        googleanalytic.recordlink(currentUrl,securityRiskScore,potentialVulnerabilities);
         console.log("Done");
     }
 });
@@ -148,3 +151,109 @@ function getCookies(url) {
         });
     });
 }
+
+
+
+// const MEASUREMENT_ID = 'G-G7KGDP2W65';
+// const API_SECRET = 'ite_6K2IST-Zb6urAVfFsw';
+// const CLIENT_ID = crypto.randomUUID(); // Persist this if you want consistent tracking
+
+// class Analytics {
+//     constructor(debug = false) {
+//       this.debug = debug;
+//     }
+  
+//     // Returns the client id, or creates a new one if one doesn't exist.
+//     // Stores client id in local storage to keep the same client id as long as
+//     // the extension is installed.
+//     async getOrCreateClientId() {
+//       let { clientId } = await chrome.storage.local.get('clientId');
+//       if (!clientId) {
+//         // Generate a unique client ID, the actual value is not relevant
+//         clientId = self.crypto.randomUUID();
+//         await chrome.storage.local.set({ clientId });
+//       }
+//       return clientId;
+//     }
+  
+//     // Returns the current session id, or creates a new one if one doesn't exist or
+//     // the previous one has expired.
+//     async getOrCreateSessionId() {
+//       // Use storage.session because it is only in memory
+//       let { sessionData } = await chrome.storage.session.get('sessionData');
+//       const currentTimeInMs = Date.now();
+//       // Check if session exists and is still valid
+//       if (sessionData && sessionData.timestamp) {
+//         // Calculate how long ago the session was last updated
+//         const durationInMin = (currentTimeInMs - sessionData.timestamp) / 60000;
+//         // Check if last update lays past the session expiration threshold
+//         if (durationInMin > SESSION_EXPIRATION_IN_MIN) {
+//           // Clear old session id to start a new session
+//           sessionData = null;
+//         } else {
+//           // Update timestamp to keep session alive
+//           sessionData.timestamp = currentTimeInMs;
+//           await chrome.storage.session.set({ sessionData });
+//         }
+//       }
+//       if (!sessionData) {
+//         // Create and store a new session
+//         sessionData = {
+//           session_id: currentTimeInMs.toString(),
+//           timestamp: currentTimeInMs.toString()
+//         };
+//         await chrome.storage.session.set({ sessionData });
+//       }
+//       return sessionData.session_id;
+//     }
+  
+  
+//   async sendAnalyticsEvent(eventName, eventParams = {}) {
+//     if (!CLIENT_ID) return; // Wait until client_id is initialized
+//     if (!eventParams.session_id) {
+//         eventParams.session_id = await this.getOrCreateSessionId();
+//       }
+//       if (!eventParams.engagement_time_msec) {
+//         eventParams.engagement_time_msec = DEFAULT_ENGAGEMENT_TIME_MSEC;
+//       }
+//     fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${MEASUREMENT_ID}&api_secret=${API_SECRET}`, {
+//       method: 'POST',
+//       body: JSON.stringify({
+//         client_id: CLIENT_ID,
+//         events: [
+//           {
+//             name: eventName,
+//             params: eventParams
+//           }
+//         ]
+//       }),
+//       headers: {
+//         'Content-Type': 'application/json'
+//       }
+//     });
+//   }
+  
+//   // 👇 Export this function
+//   const analytics = {
+//     firePhishingDetected: function (riskLevel, url) {
+//       try {
+//         const domain = new URL(url).hostname;
+  
+//         let risk_score = 0;
+//         if (riskLevel === "high") risk_score = 0.9;
+//         else if (riskLevel === "medium") risk_score = 0.6;
+//         else risk_score = 0.2;
+  
+//         sendAnalyticsEvent('phishing_detected', {
+//           domain: domain,
+//           risk_level: riskLevel,
+//           risk_score: risk_score,
+//           full_url: url
+//         });
+//       } catch (e) {
+//         console.error("Analytics tracking failed:", e);
+//       }
+//     }
+//   }
+
+//   export default new Analytics();
